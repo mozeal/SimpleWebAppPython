@@ -1,22 +1,24 @@
-# SimpleWebAppPython
+# SimpleWebAppPython - Notes App
 
-A simple Flask web application for testing docker-compose to Kubernetes deployment.
+A full-featured Flask notes application for testing docker-compose to Kubernetes deployment via K3s AI Manager.
 
 ## Features
 
-- ✅ Simple Flask web server
+- ✅ Full CRUD operations (Create, Read, Update, Delete)
+- ✅ SQLite database with persistent storage
+- ✅ RESTful API endpoints
+- ✅ Beautiful, responsive UI
 - ✅ Health check endpoint
-- ✅ API endpoint with system info
-- ✅ Beautiful UI showing deployment status
 - ✅ Ready for docker-compose deployment
-- ✅ Kubernetes-ready with health checks
+- ✅ Kubernetes-ready with persistent volumes
+- ✅ Load balanced with 2 replicas
 
 ## Quick Start (Local Testing)
 
 ### Using Docker Compose
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 Visit: http://localhost:8080
@@ -52,8 +54,8 @@ cd SimpleWebAppPython
 1. In the Ubuntu Configure modal, click **"Deploy docker-compose"**
 2. Fill in the form:
    - **Compose File Path**: `/home/ubuntu/SimpleWebAppPython/docker-compose.yml`
-   - **Deployment Name**: `simple-webapp` (or your choice)
-   - **Custom Subdomain** (optional): `my-app`
+   - **Deployment Name**: `notes-app` (or your choice)
+   - **Custom Subdomain** (optional): `my-notes`
 3. Click **Preview** to see what will be deployed
 4. Click **Deploy** and watch the build progress
 5. Once complete, click the generated URL to see your app!
@@ -62,29 +64,64 @@ cd SimpleWebAppPython
 
 Your app will be available at:
 ```
-https://web-simple-webapp.artech.cloud
+https://web-notes-app.artech.cloud
 ```
 
 Or with custom subdomain:
 ```
-https://web-my-app.artech.cloud
+https://web-my-notes.artech.cloud
 ```
 
 ## Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/` | GET | Home page with deployment info |
+| `/` | GET | Home page with notes interface |
 | `/health` | GET | Health check endpoint (JSON) |
 | `/api/info` | GET | System information (JSON) |
+| `/api/notes` | GET | Get all notes (JSON) |
+| `/api/notes` | POST | Create new note (JSON) |
+| `/api/notes/<id>` | GET | Get specific note (JSON) |
+| `/api/notes/<id>` | PUT | Update note (JSON) |
+| `/api/notes/<id>` | DELETE | Delete note |
+
+## API Examples
+
+### Create a Note
+
+```bash
+curl -X POST https://web-notes-app.artech.cloud/api/notes \
+  -H "Content-Type: application/json" \
+  -d '{"title":"My First Note","content":"Hello from the API!"}'
+```
+
+### Get All Notes
+
+```bash
+curl https://web-notes-app.artech.cloud/api/notes
+```
+
+### Update a Note
+
+```bash
+curl -X PUT https://web-notes-app.artech.cloud/api/notes/1 \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Updated Title","content":"Updated content"}'
+```
+
+### Delete a Note
+
+```bash
+curl -X DELETE https://web-notes-app.artech.cloud/api/notes/1
+```
 
 ## File Structure
 
 ```
 SimpleWebAppPython/
-├── app.py                  # Flask application
+├── app.py                  # Flask application with SQLite
 ├── templates/
-│   └── index.html         # Home page template
+│   └── index.html         # Interactive notes UI
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile             # Container image definition
 ├── docker-compose.yml     # Deployment configuration
@@ -98,9 +135,26 @@ When you deploy this app using docker-compose:
 - **2 replicas** of the web service (load balanced)
 - **512MB RAM** limit per pod
 - **0.5 CPU** limit per pod
+- **Persistent volume** for SQLite database
 - **Automatic health checks** every 30 seconds
 - **HTTPS URL** with automatic routing via Traefik
 - **Zero-downtime** rolling updates
+
+## Database Persistence
+
+Notes are stored in a SQLite database located at `/data/notes.db` inside the container. This directory is mounted as a Kubernetes PersistentVolume, ensuring your notes persist across:
+- Pod restarts
+- Deployments updates
+- Container crashes
+
+## Technology Stack
+
+- **Backend**: Flask (Python)
+- **Database**: SQLite
+- **Frontend**: Vanilla JavaScript with modern CSS
+- **Container**: Python 3.11 slim
+- **Orchestration**: Kubernetes (via K3s)
+- **Ingress**: Traefik
 
 ## Customization
 
@@ -122,13 +176,15 @@ deploy:
   replicas: 3  # Increase for higher availability
 ```
 
-### Add Environment Variables
+### Adjust Resource Limits
 
 Edit `docker-compose.yml`:
 ```yaml
-environment:
-  FLASK_ENV: production
-  MY_CUSTOM_VAR: value
+deploy:
+  resources:
+    limits:
+      cpus: '1.0'
+      memory: 1024M
 ```
 
 ## Troubleshooting
@@ -149,6 +205,15 @@ ls -la ~/SimpleWebAppPython/
 1. Click deployment status
 2. View logs
 3. Look for errors in application startup
+
+### Database Not Persisting
+
+**Problem**: Notes disappear after restart
+**Solution**: Ensure persistent volume is correctly mounted:
+```bash
+kubectl get pvc -n <namespace>
+# Should show a PVC bound to the volume
+```
 
 ### Can't Access URL
 
@@ -179,8 +244,34 @@ This app demonstrates a production-ready deployment pattern:
 ┌──────────┐    ┌──────────┐
 │  Pod 1   │    │  Pod 2   │
 │  Flask   │    │  Flask   │
-│  App     │    │  App     │
-└──────────┘    └──────────┘
+│  SQLite  │    │  SQLite  │
+└────┬─────┘    └────┬─────┘
+     │               │
+     └───────┬───────┘
+             ▼
+┌─────────────────────────────────────────┐
+│  Persistent Volume (notes-data)         │
+│  SQLite Database                        │
+└─────────────────────────────────────────┘
+```
+
+## Development
+
+Run locally with auto-reload:
+
+```bash
+export FLASK_ENV=development
+python app.py
+```
+
+Run tests:
+
+```bash
+# Install test dependencies
+pip install pytest requests
+
+# Run tests (example)
+pytest tests/
 ```
 
 ## License
