@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Web App - Docker Compose Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .status {
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-icon {
+            font-size: 24px;
+        }
+        .info-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .info-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .info-label {
+            color: #666;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #333;
+            font-size: 1.1em;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        .endpoints {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #0ea5e9;
+        }
+        .endpoints h3 {
+            color: #0369a1;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .endpoint {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .endpoint:last-child {
+            margin-bottom: 0;
+        }
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            color: #0369a1;
+            font-weight: 600;
+        }
+        .endpoint-desc {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Deployment Successful!</h1>
+        <p class="subtitle">Your app is running on Kubernetes via docker-compose</p>
+
+        <div class="status">
+            <span class="status-icon">✅</span>
+            <div>
+                <strong>Status: Running</strong><br>
+                <small>All systems operational</small>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Container Hostname</div>
+                <div class="info-value">{{ hostname }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Deployment Time</div>
+                <div class="info-value">{{ timestamp }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Framework</div>
+                <div class="info-value">Flask + Python 3.11</div>
+            </div>
+        </div>
+
+        <div class="endpoints">
+            <h3>📡 Available Endpoints</h3>
+            <div class="endpoint">
+                <span class="endpoint-path">GET /</span>
+                <span class="endpoint-desc">This page</span>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-path">GET /health</span>
+                <span class="endpoint-desc">Health check (JSON)</span>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-path">GET /api/info</span>
+                <span class="endpoint-desc">System info (JSON)</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Deployed with <a href="https://github.com/mozeal/SimpleWebAppPython" target="_blank">SimpleWebAppPython</a></p>
+            <p>Powered by K3s AI Manager</p>
+        </div>
+    </div>
+</body>
+</html>
