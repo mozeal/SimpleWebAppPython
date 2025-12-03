@@ -9,7 +9,6 @@ services:
     volumes:
       - notes-data:/data
     deploy:
-      replicas: 2
       resources:
         limits:
           cpus: '0.5'
